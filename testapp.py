@@ -1,6 +1,7 @@
 import tkinter
 import tkinter.messagebox
 import customtkinter
+from pdf_compressor import compress
 
 
 customtkinter.set_appearance_mode('System')
@@ -68,6 +69,11 @@ class App(customtkinter.CTk):
         # compress(file_path, file_path.replace(".pdf", "_compressed.pdf"), power=4)
         # print(file_path)
     
+    def update_textbox(self, text: str):
+        self.textbox.delete('0.0', 'end')
+        self.textbox.insert('0.0', text)
+        self.file_path_text.delete(0, 'end')
+
     def compress_file(self):
         file_path = self.file_path_text.get()
         if file_path == self.file_path_text._placeholder_text or file_path == "":
@@ -75,6 +81,8 @@ class App(customtkinter.CTk):
             return
         else:
             print(file_path)
+            status = compress(file_path, file_path.replace(".pdf", "_compressed.pdf"), power=4)
+            self.update_textbox(status)
 
 if __name__ == "__main__":
     app = App()
