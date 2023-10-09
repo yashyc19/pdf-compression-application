@@ -165,7 +165,8 @@ class App(customtkinter.CTk):
         file_path = customtkinter.filedialog.askopenfilename()
 
         # Do something with the selected file
-        compress(file_path, file_path.replace(".pdf", "_compressed.pdf"), power=4)
+        # compress(file_path, file_path.replace(".pdf", "_compressed.pdf"), power=4)
+        print(file_path)
 
 
 if __name__ == "__main__":
