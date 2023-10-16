@@ -62,6 +62,7 @@ class App(customtkinter.CTk):
     
     def upload_file_event(self):
         # Open a file dialog and allow the user to select a file to upload
+        self.file_path_text.delete(0, 'end')
         file_path = customtkinter.filedialog.askopenfilename()
 
         # Do something with the selected file
@@ -87,3 +88,6 @@ class App(customtkinter.CTk):
 if __name__ == "__main__":
     app = App()
     app.mainloop()
+
+# installer cmd: pyinstaller --name PDFCompressor --onefile --windowed --noconsole --icon=icon.ico compressionapp.py
+# installer cmd: pyinstaller --name PDFCompressor --onefile --windowed --icon=opensource.ico compressionapp.py

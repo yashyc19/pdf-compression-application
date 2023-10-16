@@ -23,9 +23,10 @@ import os.path
 import shutil
 import subprocess
 import sys
+import tkinter.messagebox
 
 
-def compress(input_file_path, output_file_path, power=0):
+def compress(input_file_path, output_file_path, power=4):
     """Function to compress PDF via Ghostscript command line interface"""
     quality = {
         0: "/default",
@@ -38,18 +39,18 @@ def compress(input_file_path, output_file_path, power=0):
     # Basic controls
     # Check if valid path
     if not os.path.isfile(input_file_path):
-        print("Error: invalid path for input PDF file.", input_file_path)
-        sys.exit(1)
+        tkinter.messagebox.showerror("Error", f"Error: invalid path for input PDF file. {input_file_path}")
+        return
 
     # Check compression level
     if power < 0 or power > len(quality) - 1:
-        print("Error: invalid compression level, run pdfc -h for options.", power)
-        sys.exit(1)
-
+        tkinter.messagebox.showerror("Error", f"Error: invalid compression level, run pdfc -h for options. {power}")
+        return
+    
     # Check if file is a PDF by extension
     if input_file_path.split('.')[-1].lower() != 'pdf':
-        print(f"Error: input file is not a PDF.", input_file_path)
-        sys.exit(1)
+        tkinter.messagebox.showerror("Error", f"Error: input file is not a PDF. {input_file_path}")
+        return
 
     gs = get_ghostscript_path()
     # print("Compress PDF...")
@@ -75,7 +76,7 @@ def compress(input_file_path, output_file_path, power=0):
 
 
 def get_ghostscript_path():
-    gs_names = ["gs", "gswin32", "gswin64"]
+    gs_names = ["gswin64", "gswin32", "gs"]
     for name in gs_names:
         if shutil.which(name):
             return shutil.which(name)
