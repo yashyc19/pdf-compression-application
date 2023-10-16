@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['compressionapp.py'],
+    ['application.py'],
     pathex=[],
     binaries=[],
     datas=[],
