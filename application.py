@@ -17,8 +17,8 @@ class App(customtkinter.CTk):
         self.geometry(f"{720}x{448}")
 
         # configure grid layout (4x4)
-        self.grid_columnconfigure(0, weight=0) # column 0 is resizable
-        self.grid_columnconfigure((1, 2), weight=1) # column 1 is not resizable
+        self.grid_columnconfigure(0, weight=0) # column 0 is -not resizable
+        self.grid_columnconfigure((1, 2, 3, 4), weight=1) # column 1 is resizable
         self.grid_rowconfigure((0, 1, 2, 3), weight=1) # rows 0, 1 and 2 are resizable
 
         # create sidebar frame with widgets
@@ -40,17 +40,23 @@ class App(customtkinter.CTk):
 
     # create textbox
         self.textbox = customtkinter.CTkTextbox(self, width=250)
-        self.textbox.grid(row=0, column=1, columnspan=2, padx=20, pady=20, sticky="nsew")
+        self.textbox.grid(row=0, column=1, columnspan=4, padx=20, pady=20, sticky="nsew")
 
     # create main entry and button
         self.file_path_text = customtkinter.CTkEntry(self, placeholder_text="Enter a valid file path")
-        self.file_path_text.grid(row=1, column=1, columnspan=2, padx=20, pady=20, sticky="nsew")
+        self.file_path_text.grid(row=1, column=1, columnspan=2, padx=(20, 10), pady=20, sticky="nsew")
+
+        self.power_label = customtkinter.CTkLabel(self, text="Power:", anchor="w")
+        self.power_label.grid(row=1, column=3, padx=(10, 0), pady=20, sticky="nsew")
+
+        self.power_optionemenu = customtkinter.CTkOptionMenu(self, values=["0", "1", "2", "3", "4"])
+        self.power_optionemenu.grid(row=1, column=4, padx=(0, 20), pady=20, sticky="nsew")
 
         self.upload_button = customtkinter.CTkButton(master=self, fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), text="Upload", command=self.upload_file_event)
-        self.upload_button.grid(row=2, column=1, rowspan=2,  padx=(20, 20), pady=(20, 20), sticky="nsew")
+        self.upload_button.grid(row=2, column=1, columnspan=2,  padx=(20, 10), pady=20, sticky="nsew")
 
         self.compress_button = customtkinter.CTkButton(master=self, fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), text="Compress", command=self.compress_file)
-        self.compress_button.grid(row=2, column=2, rowspan=2,  padx=(20, 20), pady=(20, 20), sticky="nsew")
+        self.compress_button.grid(row=2, column=3, columnspan=2,  padx=(10, 20), pady=20, sticky="nsew")
 
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
@@ -81,13 +87,25 @@ class App(customtkinter.CTk):
             tkinter.messagebox.showerror("Error", "Please enter a valid file path")
             return
         else:
-            print(file_path)
-            status = compress(file_path, file_path.replace(".pdf", "_compressed.pdf"), power=4)
+            power_value = int(self.power_optionemenu.get())  # Retrieve the selected power value
+            # print(f"Selected power value: {power_value}")  # Print the selected power value (for testing)
+            status = compress(file_path, file_path.replace(".pdf", "_compressed.pdf"), power=power_value)
             self.update_textbox(status)
+
+
+    # def compress_file(self):
+    #     file_path = self.file_path_text.get()
+    #     if file_path == self.file_path_text._placeholder_text or file_path == "":
+    #         tkinter.messagebox.showerror("Error", "Please enter a valid file path")
+    #         return
+    #     else:
+    #         print(file_path)
+    #         status = compress(file_path, file_path.replace(".pdf", "_compressed.pdf"), power=4)
+    #         self.update_textbox(status)
 
 if __name__ == "__main__":
     app = App()
     app.mainloop()
 
-# installer cmd: pyinstaller --name PDFCompressor --onefile --windowed --noconsole --icon=icon.ico compressionapp.py
+# installer cmd: pyinstaller --name PDFCompressor --onefile --windowed --noconsole --icon=icon.ico application.py
 # installer cmd: pyinstaller --name PDFCompressor --onefile --windowed --icon=opensource.ico compressionapp.py

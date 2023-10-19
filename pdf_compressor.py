@@ -18,15 +18,13 @@ Dependency: Ghostscript.
 On MacOSX install via command line `brew install ghostscript`.
 """
 
-import argparse
 import os.path
 import shutil
 import subprocess
-import sys
 import tkinter.messagebox
 
 
-def compress(input_file_path, output_file_path, power=4):
+def compress(input_file_path, output_file_path, power=0):
     """Function to compress PDF via Ghostscript command line interface"""
     quality = {
         0: "/default",
