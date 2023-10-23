@@ -1,4 +1,5 @@
 from PyPDF2 import PdfReader, PdfWriter
+import os.path
 
 def split_pdf(input_file_path, custom_start, custom_end, fixed_value):
     if custom_start and custom_end:
@@ -18,10 +19,15 @@ def split_custom_range(input_file_path, start, end):
         writer.add_page(reader.pages[page_num])
 
     input_file_path = input_file_path.split(".")[0]
-    with open(f"{input_file_path}_{start}_to_{end}.pdf", 'wb') as output_pdf:
-        writer.write(output_pdf)
+    output_pdf = f'{input_file_path}_{start}_to_{end}.pdf'
+    with open(output_pdf, 'wb') as output:
+        writer.write(output)
 
-    return(f"PDF has been split from page {start} to {end}.")
+    # return the final filesize
+    return(f"""
+    PDF has been split from page {start} to {end}. \n
+    Path of the split pdf is:\n{os.path.abspath(output_pdf)} \n
+    Size of the split pdf is:\n{os.path.getsize(output_pdf)/(1024*1024)} MB""")
 
 def split_fixed_value(input_file_path, fixed_value):
     reader = PdfReader(input_file_path)
