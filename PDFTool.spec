@@ -21,7 +21,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='PDFCompressor',
+    name='PDFTool',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
