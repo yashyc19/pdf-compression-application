@@ -9,7 +9,7 @@ Please make sure that you add the bin folder of GhostScript to system environmen
 
 To create the executable, run
 ```bash
-pyinstaller --name PDFCompressor --onefile --windowed --noconsole --icon=icon.ico application.py
+pyinstaller --name PDFTool --onefile --windowed --noconsole --icon=icon.ico pdftool.py
 ```
     Note: You can modify the exe making according to you preference.
 
