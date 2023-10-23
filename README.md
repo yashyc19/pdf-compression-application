@@ -16,7 +16,7 @@ pyinstaller --name PDFCompressor --onefile --windowed --noconsole --icon=icon.ic
 ## Working
 Run the application.py file using the command
 ```
-python application.py
+python pdftool.py
 ```
 then select a pdf file using "Upload" button and then press "Compress"
 
