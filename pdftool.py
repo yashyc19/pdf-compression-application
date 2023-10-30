@@ -1,8 +1,10 @@
 import tkinter
 import tkinter.messagebox
+import tkinter.filedialog as filedialog
 import customtkinter
 from pdf_compressor import compress
-from pdf_split import split_pdf as split
+from pdf_split import split_pdf
+from pdf_merge import merge_pdfs
 
 customtkinter.set_appearance_mode("System")
 customtkinter.set_default_color_theme("blue")
@@ -47,6 +49,7 @@ class App(customtkinter.CTk):
         self.tabview.add("PDF Merge")
         self.tabview.tab("PDF Compress").grid_columnconfigure([0], weight=1) 
         self.tabview.tab("PDF Split").grid_columnconfigure([0, 1, 2, 3], weight=1)
+        self.tabview.tab("PDF Merge").grid_columnconfigure([0], weight=1)
 
         # create compress tab
         self.compress_file_path = customtkinter.CTkEntry(self.tabview.tab("PDF Compress"), placeholder_text="Enter the file path")
@@ -100,6 +103,28 @@ class App(customtkinter.CTk):
         self.split_button.grid(row=4, column=0, columnspan=4, padx=20, pady=20, sticky="nsew", ipadx=20, ipady=5)  # Adjust the ipadx and ipady parameters to increase the size of the button
         self.split_button.configure(width=20)  # Adjust the width to increase the button's width
 
+
+        # create merge tab
+        self.merge_file_paths = []  # List to hold the paths of the files to be merged
+        self.upload_merge_button = customtkinter.CTkButton(self.tabview.tab("PDF Merge"), text="Upload", command=self.upload_merge_event)
+        self.upload_merge_button.grid(row=0, column=0, columnspan=3, padx=20, pady=(20, 10))
+
+        self.merge_listbox = tkinter.Listbox(self.tabview.tab("PDF Merge"), width=50)  # Using tkinter Listbox here
+        self.merge_listbox.grid(row=1, column=0, columnspan=3, padx=20, pady=10, sticky="nsew")
+        self.merge_listbox.config(xscrollcommand=True)
+
+        self.up_button = customtkinter.CTkButton(self.tabview.tab("PDF Merge"), text="Move Up", command=self.move_up_event)
+        self.up_button.grid(row=2, column=0, padx=(20, 10), pady=10, sticky="nsew")
+        self.down_button = customtkinter.CTkButton(self.tabview.tab("PDF Merge"), text="Move Down", command=self.move_down_event)
+        self.down_button.grid(row=2, column=1, padx=10, pady=10, sticky="nsew")
+        self.remove_button = customtkinter.CTkButton(self.tabview.tab("PDF Merge"), text="Remove", command=self.remove_file_event)
+        self.remove_button.grid(row=2, column=2, padx=(10, 20), pady=10, sticky="nsew")
+
+        self.merge_button = customtkinter.CTkButton(self.tabview.tab("PDF Merge"), text="Merge", command=lambda: self.merge_files_event(self.merge_file_paths))
+        self.merge_button.grid(row=5, column=0, columnspan=3, padx=20, pady=20, sticky="nsew", ipadx=20, ipady=5)
+        self.merge_button.configure(width=20)
+
+        
         # create textbox
         self.textbox = customtkinter.CTkTextbox(self, width=250)
         self.textbox.grid(row=0, column=2, padx=(10, 20), pady=20, sticky="nsew")
@@ -161,20 +186,67 @@ class App(customtkinter.CTk):
                 if start > end:
                     tkinter.messagebox.showerror("Error", "Please enter a valid custom range")
                     return
-                msg = split(file_path, custom_start=start, custom_end=end, fixed_value=None)
+                msg = split_pdf(file_path, custom_start=start, custom_end=end, fixed_value=None)
                 self.update_textbox(msg)
             else:
                 if self.fixed_range_entry.get() == "":
                     tkinter.messagebox.showerror("Error", "Please enter a valid fixed range")
                     return
                 fixed = int(self.fixed_range_entry.get())
-                msg = split(file_path, fixed_value=fixed, custom_start=None, custom_end=None)
+                msg = split_pdf(file_path, fixed_value=fixed, custom_start=None, custom_end=None)
                 self.update_textbox(msg)
         # clear input fields
         self.split_file_path.delete(0, 'end')
         self.custom_range_entry_start.delete(0, 'end')
         self.custom_range_entry_end.delete(0, 'end')
         self.fixed_range_entry.delete(0, 'end')
+    
+    def upload_merge_event(self):
+        # Open a file dialog and allow the user to select files to upload
+        file_paths = customtkinter.filedialog.askopenfilenames()
+
+        for path in file_paths:
+            self.merge_listbox.insert("end", path)
+            self.merge_file_paths.append(path)
+
+    def move_up_event(self):
+        selected_index = self.merge_listbox.curselection()
+        if selected_index:
+            selected_index = int(selected_index[0])
+            if selected_index > 0:
+                self.merge_listbox.insert(selected_index - 1, self.merge_listbox.get(selected_index))
+                self.merge_listbox.delete(selected_index + 1)
+                self.merge_file_paths.insert(selected_index - 1, self.merge_file_paths.pop(selected_index))
+    
+    def move_down_event(self):
+        selected_index = self.merge_listbox.curselection()
+        if selected_index:
+            selected_index = int(selected_index[0])
+            if selected_index < len(self.merge_file_paths) - 1:
+                self.merge_listbox.insert(selected_index + 2, self.merge_listbox.get(selected_index))
+                self.merge_listbox.delete(selected_index)
+                self.merge_file_paths.insert(selected_index + 1, self.merge_file_paths.pop(selected_index))
+
+    def remove_file_event(self):
+        selected_index = self.merge_listbox.curselection()
+        if selected_index:
+            selected_index = int(selected_index[0])
+            self.merge_listbox.delete(selected_index)
+            self.merge_file_paths.pop(selected_index)
+
+    def merge_files_event(self, file_paths):
+        if len(file_paths) < 2:
+            tkinter.messagebox.showerror("Error", "Please select at least 2 files to merge.")
+        else:
+            output_path = filedialog.asksaveasfilename(defaultextension=".pdf")
+            if output_path:
+                merge_pdfs(file_paths, output_path)
+                self.update_textbox(f"PDF files have been merged into {output_path}.")
+                self.merge_file_paths.clear()
+                self.merge_listbox.delete(0, "end")
+
+
+
 
 if __name__ == "__main__":
     app = App()
